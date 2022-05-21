@@ -28,7 +28,7 @@ class Student extends Contract {
             var hash = crypto.pbkdf2Sync("12345678", salt, 1000, 64, `sha512`).toString(`hex`);
             student.hash = hash;
             student.docType = 'student';
-            await ctx.stub.putState(student.ID, Buffer.from(JSON.stringify(student)));
+            await ctx.stub.putState(student.FILE, Buffer.from(JSON.stringify(student)));
         }
         console.info('============= END : Initialize Ledger ===========');
     }
