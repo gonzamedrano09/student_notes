@@ -16,6 +16,7 @@
     "engineStrict": true,
     "author": "Software architecture",
     "dependencies": {
+        "crypto": "^1.0.1",
         "fabric-contract-api": "^2.0.0",
         "fabric-shim": "^2.0.0"
     },
