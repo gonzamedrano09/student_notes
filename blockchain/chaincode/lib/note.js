@@ -13,7 +13,7 @@ class Note extends Contract {
                 instance_id: 1,
                 note: 8,
                 date: "2020-04-10T10:00:00+0000",
-                observations: "Muy buen parcial",
+                observations: "Muy buen parcial"
             },
             {
                 ID: 2,
@@ -21,7 +21,7 @@ class Note extends Contract {
                 instance_id: 2,
                 note: 4,
                 date: "2021-06-5T12:00:00+0000",
-                observations: "El trabajo práctico tuvo algunos errores",
+                observations: "El trabajo práctico tuvo algunos errores"
             },
         ];
         for (const note of notes) {
@@ -31,7 +31,104 @@ class Note extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    // Create, update and delete methods are missing
+    async noteExists(ctx, noteNumber) {
+        const noteAsBytes = await ctx.stub.getState(noteNumber);
+        return noteAsBytes && noteAsBytes.length > 0;
+    }
+
+    async createNote(ctx, noteNumber, studentFile, instanceId, note, date, observations) {
+        const exists = await this.noteExists(ctx, noteNumber);
+        if (exists) {
+            throw new Error(`The note ${noteNumber} already exists`);
+        }
+
+        const note = {
+            ID: noteNumber,
+            student_file: studentFile,
+            instance_id: instanceId,
+            note: note,
+            date: date,
+            observations: observations
+        };
+
+        note.docType = 'note';
+        await ctx.stub.putState(note.ID, Buffer.from(JSON.stringify(note)));
+
+        console.info(note);
+        return JSON.stringify(note);
+    }
+
+    async deleteNote(ctx, noteNumber) {
+        const exists = await this.noteExists(ctx, noteNumber);
+        if (!exists) {
+            throw new Error(`The note ${noteNumber} does not exist`);
+        }
+
+        console.info(noteNumber);
+        return ctx.stub.deleteState(noteNumber);
+    }
+
+    async queryNoteByInstanceId(ctx, instanceId) {
+		let queryString = {};
+		queryString.selector = {};
+		queryString.selector.docType = 'note';
+		queryString.selector.instance_id = instanceId;
+		
+        let resultsIterator = await ctx.stub.getQueryResult(queryString);
+
+        let allResults = [];
+		let res = await resultsIterator.next();
+		while (!res.done) {
+			if (res.value && res.value.value.toString()) {
+				let jsonRes = {};
+				console.log(res.value.value.toString('utf8'));
+				jsonRes.TxId = res.value.txId;
+                jsonRes.Timestamp = res.value.timestamp;
+                try {
+                    jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    jsonRes.Value = res.value.value.toString('utf8');
+                }
+				allResults.push(jsonRes);
+			}
+			res = await resultsIterator.next();
+		}
+		resultsIterator.close();
+
+		return JSON.stringify(allResults);
+	}
+
+    async queryNoteByStudentFile(ctx, studetFile) {
+		let queryString = {};
+		queryString.selector = {};
+		queryString.selector.docType = 'note';
+		queryString.selector.student_file = studetFile;
+		
+        let resultsIterator = await ctx.stub.getQueryResult(queryString);
+
+        let allResults = [];
+		let res = await resultsIterator.next();
+		while (!res.done) {
+			if (res.value && res.value.value.toString()) {
+				let jsonRes = {};
+				console.log(res.value.value.toString('utf8'));
+				jsonRes.TxId = res.value.txId;
+                jsonRes.Timestamp = res.value.timestamp;
+                try {
+                    jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    jsonRes.Value = res.value.value.toString('utf8');
+                }
+				allResults.push(jsonRes);
+			}
+			res = await resultsIterator.next();
+		}
+		resultsIterator.close();
+
+		return JSON.stringify(allResults);
+	}
 
     async queryNote(ctx, noteNumber) {
         const noteAsBytes = await ctx.stub.getState(noteNumber);

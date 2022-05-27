@@ -27,7 +27,40 @@ class Instance extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    // Create, update and delete methods are missing
+    async instanceExists(ctx, instanceNumber) {
+        const instanceAsBytes = await ctx.stub.getState(instanceNumber);
+        return instanceAsBytes && instanceAsBytes.length > 0;
+    }
+
+    async createInstance(ctx, instanceNumber, courseId, instanceTypeId, instanceNumber) {
+        const exists = await this.instanceExists(ctx, instanceNumber);
+        if (exists) {
+            throw new Error(`The instance ${noteNumber} already exists`);
+        }
+
+        const instance = {
+            ID: instanceNumber,
+            course_id: courseId,
+            instance_type_id: instanceTypeId,
+            instance_number: instanceNumber
+        };
+
+        instance.docType = 'instance';
+        await ctx.stub.putState(instance.ID, Buffer.from(JSON.stringify(instance)));
+
+        console.info(instance);
+        return JSON.stringify(instance);
+    }
+
+    async deleteInstance(ctx, instanceNumber) {
+        const exists = await this.instanceExists(ctx, instanceNumber);
+        if (!exists) {
+            throw new Error(`The instance ${noteNumber} does not exist`);
+        }
+
+        console.info(instanceNumber);
+        return ctx.stub.deleteState(instanceNumber);
+    }
 
     async queryInstance(ctx, instanceNumber) {
         const instanceAsBytes = await ctx.stub.getState(instanceNumber);
@@ -37,6 +70,37 @@ class Instance extends Contract {
         console.log(instanceAsBytes.toString());
         return instanceAsBytes.toString();
     }
+
+    async queryInstanceByCourseId(ctx, courseId) {
+		let queryString = {};
+		queryString.selector = {};
+		queryString.selector.docType = 'instance';
+		queryString.selector.course_id = courseId;
+		
+        let resultsIterator = await ctx.stub.getQueryResult(queryString);
+
+        let allResults = [];
+		let res = await resultsIterator.next();
+		while (!res.done) {
+			if (res.value && res.value.value.toString()) {
+				let jsonRes = {};
+				console.log(res.value.value.toString('utf8'));
+				jsonRes.TxId = res.value.txId;
+                jsonRes.Timestamp = res.value.timestamp;
+                try {
+                    jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    jsonRes.Value = res.value.value.toString('utf8');
+                }
+				allResults.push(jsonRes);
+			}
+			res = await resultsIterator.next();
+		}
+		resultsIterator.close();
+
+		return JSON.stringify(allResults);
+	}
 
     async queryAllInstanceTypes(ctx) {
         const startKey = '';
