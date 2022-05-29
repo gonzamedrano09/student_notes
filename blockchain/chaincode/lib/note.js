@@ -8,7 +8,7 @@ class Note extends Contract {
         console.info('============= START : Initialize Ledger ===========');
         const notes = [
             {
-                ID: 1,
+                ID: '1',
                 student_file: 11222,
                 instance_id: 1,
                 note: 8,
@@ -16,13 +16,13 @@ class Note extends Contract {
                 observations: "Muy buen parcial"
             },
             {
-                ID: 2,
+                ID: '2',
                 student_file: 223333,
                 instance_id: 2,
                 note: 4,
                 date: "2021-06-5T12:00:00+0000",
                 observations: "El trabajo práctico tuvo algunos errores"
-            },
+            }
         ];
         for (const note of notes) {
             note.docType = 'note';
@@ -31,19 +31,19 @@ class Note extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async noteExists(ctx, noteNumber) {
-        const noteAsBytes = await ctx.stub.getState(noteNumber);
+    async noteExists(ctx, noteId) {
+        const noteAsBytes = await ctx.stub.getState(noteId);
         return noteAsBytes && noteAsBytes.length > 0;
     }
 
-    async createNote(ctx, noteNumber, studentFile, instanceId, note, date, observations) {
-        const exists = await this.noteExists(ctx, noteNumber);
+    async createNote(ctx, noteId, studentFile, instanceId, note, date, observations) {
+        const exists = await this.noteExists(ctx, noteId);
         if (exists) {
-            throw new Error(`The note ${noteNumber} already exists`);
+            throw new Error(`The note ${noteId} already exists`);
         }
 
-        const note = {
-            ID: noteNumber,
+        const newNote = {
+            ID: noteId,
             student_file: studentFile,
             instance_id: instanceId,
             note: note,
@@ -51,21 +51,21 @@ class Note extends Contract {
             observations: observations
         };
 
-        note.docType = 'note';
-        await ctx.stub.putState(note.ID, Buffer.from(JSON.stringify(note)));
+        newNote.docType = 'note';
+        await ctx.stub.putState(note.ID, Buffer.from(JSON.stringify(newNote)));
 
-        console.info(note);
-        return JSON.stringify(note);
+        console.info(newNote);
+        return JSON.stringify(newNote);
     }
 
-    async deleteNote(ctx, noteNumber) {
-        const exists = await this.noteExists(ctx, noteNumber);
+    async deleteNote(ctx, noteId) {
+        const exists = await this.noteExists(ctx, noteId);
         if (!exists) {
-            throw new Error(`The note ${noteNumber} does not exist`);
+            throw new Error(`The note ${noteId} does not exist`);
         }
 
-        console.info(noteNumber);
-        return ctx.stub.deleteState(noteNumber);
+        console.info(noteId);
+        return ctx.stub.deleteState(noteId);
     }
 
     async queryNoteByInstanceId(ctx, instanceId) {

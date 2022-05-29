@@ -8,17 +8,17 @@ class Instance extends Contract {
         console.info('============= START : Initialize Ledger ===========');
         const instances = [
             {
-                ID: 1,
+                ID: '1',
                 course_id: 1,
                 instance_type_id: 1,
-                instance_number: 1,
+                instance_number: 1
             },
             {
-                ID: 2,
+                ID: '2',
                 course_id: 2,
                 instance_type_id: 2,
                 instance_number: 1
-            },
+            }
         ];
         for (const instance of instances) {
             instance.docType = 'instance';
@@ -27,45 +27,45 @@ class Instance extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async instanceExists(ctx, instanceNumber) {
-        const instanceAsBytes = await ctx.stub.getState(instanceNumber);
+    async instanceExists(ctx, instanceId) {
+        const instanceAsBytes = await ctx.stub.getState(instanceId);
         return instanceAsBytes && instanceAsBytes.length > 0;
     }
 
-    async createInstance(ctx, instanceNumber, courseId, instanceTypeId, instanceNumber) {
+    async createInstance(ctx, instanceId, courseId, instanceTypeId, instanceNumber) {
         const exists = await this.instanceExists(ctx, instanceNumber);
         if (exists) {
             throw new Error(`The instance ${noteNumber} already exists`);
         }
 
-        const instance = {
-            ID: instanceNumber,
+        const newInstance = {
+            ID: instanceId,
             course_id: courseId,
             instance_type_id: instanceTypeId,
             instance_number: instanceNumber
         };
 
-        instance.docType = 'instance';
-        await ctx.stub.putState(instance.ID, Buffer.from(JSON.stringify(instance)));
+        newInstance.docType = 'instance';
+        await ctx.stub.putState(newInstance.ID, Buffer.from(JSON.stringify(newInstance)));
 
-        console.info(instance);
-        return JSON.stringify(instance);
+        console.info(newInstance);
+        return JSON.stringify(newInstance);
     }
 
-    async deleteInstance(ctx, instanceNumber) {
-        const exists = await this.instanceExists(ctx, instanceNumber);
+    async deleteInstance(ctx, instanceId) {
+        const exists = await this.instanceExists(ctx, instanceId);
         if (!exists) {
-            throw new Error(`The instance ${noteNumber} does not exist`);
+            throw new Error(`The instance ${instanceId} does not exist`);
         }
 
-        console.info(instanceNumber);
-        return ctx.stub.deleteState(instanceNumber);
+        console.info(instanceId);
+        return ctx.stub.deleteState(instanceId);
     }
 
-    async queryInstance(ctx, instanceNumber) {
-        const instanceAsBytes = await ctx.stub.getState(instanceNumber);
+    async queryInstance(ctx, instanceId) {
+        const instanceAsBytes = await ctx.stub.getState(instanceId);
         if (!instanceAsBytes || instanceAsBytes.length === 0) {
-            throw new Error(`${instanceNumber} does not exist`);
+            throw new Error(`${instanceId} does not exist`);
         }
         console.log(instanceAsBytes.toString());
         return instanceAsBytes.toString();

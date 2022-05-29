@@ -10,17 +10,17 @@ class Student extends Contract {
         console.info('============= START : Initialize Ledger ===========');
         const students = [
             {
-                FILE: 11222,
+                FILE: '11222',
                 first_name: 'Lautaro',
                 last_name: 'Ramirez',
                 year_of_study: 2020
             },
             {
-                FILE: 223333,
+                FILE: '223333',
                 first_name: 'Ivan',
                 last_name: 'Romero',
                 year_of_study: 2021
-            },
+            }
         ];
         for (const student of students) {
             var salt = crypto.randomBytes(16).toString('hex');
@@ -33,16 +33,16 @@ class Student extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async queryStudet(ctx, studentNumber) {
-        const studentAsBytes = await ctx.stub.getState(studentNumber);
+    async queryStudet(ctx, studentFile) {
+        const studentAsBytes = await ctx.stub.getState(studentFile);
         if (!studentAsBytes || studentAsBytes.length === 0) {
-            throw new Error(`${studentNumber} does not exist`);
+            throw new Error(`${studentFile} does not exist`);
         }
         console.log(studentAsBytes.toString());
         return studentAsBytes.toString();
     }
 
-    async queryAllProfessors(ctx) {
+    async queryAllStudents(ctx) {
         const startKey = '';
         const endKey = '';
         const allResults = [];

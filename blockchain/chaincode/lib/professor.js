@@ -10,17 +10,17 @@ class Professor extends Contract {
         console.info('============= START : Initialize Ledger ===========');
         const professors = [
             {
-                ID: 1,
+                ID: '1',
                 first_name: 'Martín',
                 last_name: 'García',
-                course_id: 1,
+                course_id: 1
             },
             {
-                ID: 2,
+                ID: '2',
                 first_name: 'Roberto',
                 last_name: 'Fernandez',
-                course_id: 2,
-            },
+                course_id: 2
+            }
         ];
         for (const professor of professors) {
             var salt = crypto.randomBytes(16).toString('hex');
@@ -33,10 +33,10 @@ class Professor extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async queryProfessor(ctx, professorNumber) {
-        const professorAsBytes = await ctx.stub.getState(professorNumber);
+    async queryProfessor(ctx, professorId) {
+        const professorAsBytes = await ctx.stub.getState(professorId);
         if (!professorAsBytes || professorAsBytes.length === 0) {
-            throw new Error(`${professorNumber} does not exist`);
+            throw new Error(`${professorId} does not exist`);
         }
         console.log(professorAsBytes.toString());
         return professorAsBytes.toString();

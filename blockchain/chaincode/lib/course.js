@@ -8,13 +8,13 @@ class Course extends Contract {
         console.info('============= START : Initialize Ledger ===========');
         const courses = [
             {
-                ID: 1,
-                name: 'Arquitectura de software',
+                ID: '1',
+                name: 'Arquitectura de software'
             },
             {
-                ID: 2,
-                name: 'Diseño de sistemas',
-            },
+                ID: '2',
+                name: 'Diseño de sistemas'
+            }
         ];
         for (const course of courses) {
             course.docType = 'course';
@@ -23,10 +23,10 @@ class Course extends Contract {
         console.info('============= END : Initialize Ledger ===========');
     }
 
-    async queryCourse(ctx, courseNumber) {
-        const courseAsBytes = await ctx.stub.getState(courseNumber);
+    async queryCourse(ctx, courseId) {
+        const courseAsBytes = await ctx.stub.getState(courseId);
         if (!courseAsBytes || courseAsBytes.length === 0) {
-            throw new Error(`${courseNumber} does not exist`);
+            throw new Error(`${courseId} does not exist`);
         }
         console.log(courseAsBytes.toString());
         return courseAsBytes.toString();
@@ -50,7 +50,7 @@ class Course extends Contract {
         console.info(allResults);
         return JSON.stringify(allResults);
     }
-
+    
 }
 
 module.exports = Course;
